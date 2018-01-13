@@ -1,7 +1,22 @@
 # GoogleDriveTool
 CSharp implementation of Google Drive API v3 
 
+```
++ Usage GDriveTool.exe <parameters>
 
+  Paramenters:
+  -cf <new foldername> <optional destinationFolderId>           Create a Folder
+  -cp <originId> <new filename> <optional destinationFolderId>  Copy a file
+  -cpall <originId> <destId>                                    Copy all files and folders recursively
+  -l <parentFolderId root/id>                                   List items of a location
+  -lf <parentFolderId root/id>                                  List files of a location
+  -ld <parentFolderId root/id>                                  List folders of a location
+  -s <name> <optional includeTrash True/Fase>                   Search a File
+  -del <fileId>                                                 Delete a file/Folder
+  -u <filePath> <optional parentFolderId>                       Upload a File
+  -ru <filePath> <fileId>                                       Resume Upload
+  -d <fileId> <destinationFilename>                             Download File
+```
 
 ### The Google Drive API 
 Google Drive has an extensive API that enables you to manipulate the contents of your accounts in projects that use any programming language that supports REST services. At the time of writing this article, the API is in its third version.
