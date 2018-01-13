@@ -301,11 +301,15 @@ namespace GDriveTool
         }
 
 
-        public static File Upload(Google.Apis.Drive.v3.DriveService service, string filepath)
+        public static File Upload(Google.Apis.Drive.v3.DriveService service, string filepath, String parentFolderId = "")
         {
-            var newFile = new Google.Apis.Drive.v3.Data.File();
-            newFile.Name = System.IO.Path.GetFileName(filepath);
-            newFile.MimeType = MimeTypes.MimeTypeMap.GetMimeType(System.IO.Path.GetExtension(filepath));
+            var newFile = new Google.Apis.Drive.v3.Data.File()
+            {
+                Name = System.IO.Path.GetFileName(filepath),
+                Parents = parentFolderId != "" ? new List<string> { parentFolderId } : null,
+                MimeType = MimeTypes.MimeTypeMap.GetMimeType(System.IO.Path.GetExtension(filepath))
+            };
+
             try
             {
                 using (var stream = new System.IO.FileStream(filepath, System.IO.FileMode.Open, System.IO.FileAccess.Read))
@@ -353,14 +357,11 @@ namespace GDriveTool
 
             try
             {
-
                 var request = service.Files.Get(fileId);
                 using (var stream = new System.IO.FileStream(localDestinationFilename, System.IO.FileMode.Create, System.IO.FileAccess.Write))
                 {
                     request.Download(stream);
                 }
-
-
             }
             catch (Exception e)
             {

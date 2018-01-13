@@ -22,7 +22,6 @@ namespace GDriveTool
                 string destFolderId =   "yyyyyyyyyyyyyyyyy";
                 GoogleDrive.copyAll(service, originFolderId, destFolderId);
 
-                //ListarArquivosPaginados(servico, originId,"");
                 //List<File> lstFolders = GoogleDrive.ListFolders(service, originFolderId);
                 //List<File> lstFiles = GoogleDrive.ListFiles(service, originFolderId);
                 //List<File> lstAllItems = GoogleDrive.ListAll(service, originFolderId);
