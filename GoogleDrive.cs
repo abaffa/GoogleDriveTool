@@ -43,9 +43,7 @@ namespace GDriveTool
         }
 
 
-
-
-
+        
         public static Google.Apis.Drive.v3.DriveService OpenService(Google.Apis.Auth.OAuth2.UserCredential credentials)
         {
             return new Google.Apis.Drive.v3.DriveService(new Google.Apis.Services.BaseClientService.Initializer()
@@ -55,6 +53,7 @@ namespace GDriveTool
         }
 
 
+        // -cf  <new foldername> <optional destinationFolderId> Create a Folder
         public static File CreateFolder(DriveService service, string newFolderName, String parentFolderId = "")
         {
             var diretorio = new Google.Apis.Drive.v3.Data.File()
@@ -77,6 +76,7 @@ namespace GDriveTool
         }
 
 
+        // -cp <originId> <new filename> <optional destinationFolderId> Copy a file
         public static File CopyFile(DriveService service, String originFileId, String newFileName, String parentFolderId = "")
         {
             File newFile = new Google.Apis.Drive.v3.Data.File()
@@ -99,6 +99,7 @@ namespace GDriveTool
 
 
 
+        // -cpall <originId> <destId> Copy all files and folders recursively
         public static void copyAll(DriveService service, string originId, string destId)
         {
             var requestDirOrigin = service.Files.Get(originId);
@@ -141,6 +142,7 @@ namespace GDriveTool
 
         }
 
+        // -l <parentFolderId> List items of a location
         public static List<File> ListAll(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> filesList = new List<File>();
@@ -180,6 +182,7 @@ namespace GDriveTool
             return filesList;
         }
 
+        // -lf <parentFolderId> List files of a location
         public static List<File> ListFiles(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> filesList = new List<File>();
@@ -219,6 +222,8 @@ namespace GDriveTool
 
             return filesList;
         }
+
+        // -ld <parentFolderId> List folders of a location
         public static List<File> ListFolders(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> folderList = new List<File>();
@@ -260,6 +265,7 @@ namespace GDriveTool
         }
 
 
+        // -s <name> <optional includeTrash True/Fase> Search a File
         public static string[] SearchForFileId(Google.Apis.Drive.v3.DriveService service, string name, bool includeTrash = false)
         {
             var ret = new List<string>();
@@ -285,7 +291,7 @@ namespace GDriveTool
             return ret.ToArray();
         }
 
-
+        // -del <fileId> Delete a file/Folder
         public static void Delete(Google.Apis.Drive.v3.DriveService service, string fileId)
         {
 
@@ -301,6 +307,7 @@ namespace GDriveTool
         }
 
 
+        // -u <filePath> <optional parentFolderId> Upload a File
         public static File Upload(Google.Apis.Drive.v3.DriveService service, string filepath, String parentFolderId = "")
         {
             var newFile = new Google.Apis.Drive.v3.Data.File()
@@ -328,6 +335,7 @@ namespace GDriveTool
             return null;
         }
 
+        // -ru <filePath> <fileId> Resume Upload
         public static File ResumeUpload(Google.Apis.Drive.v3.DriveService service, string filepath, string fileId)
         {
             var newFile = new Google.Apis.Drive.v3.Data.File();
@@ -352,6 +360,7 @@ namespace GDriveTool
         }
 
 
+        // -d <fileId> <destinationFilename> Download File
         public static void Download(Google.Apis.Drive.v3.DriveService service, string fileId, string localDestinationFilename)
         {
 
