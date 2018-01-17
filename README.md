@@ -16,6 +16,7 @@ CSharp implementation of Google Drive API v3
   -u <filePath> <optional parentFolderId>                       Upload a File
   -ru <filePath> <fileId>                                       Resume Upload
   -d <fileId> <destinationFilename>                             Download File
+  -df <folderId> <destinationFolder>                            Download Folder
 ```
 
 ### The Google Drive API 
