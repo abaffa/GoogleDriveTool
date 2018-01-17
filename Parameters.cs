@@ -30,7 +30,8 @@ namespace GDriveTool
             delete,
             upload,
             resume_upload,
-            download
+            download,
+            download_folder
 
         }
 
@@ -52,6 +53,7 @@ namespace GDriveTool
             Console.WriteLine("  -u <filePath> <optional parentFolderId>\t\t\tUpload a File");
             Console.WriteLine("  -ru <filePath> <fileId>\t\t\t\t\tResume Upload");
             Console.WriteLine("  -d <fileId> <destinationFilename>\t\t\t\tDownload File");
+            Console.WriteLine("  -df <folderId> <destinationFolder>\t\t\t\tDownload Folder");
             Console.WriteLine();
         }
         public static bool Process(string[] args)
@@ -138,6 +140,13 @@ namespace GDriveTool
                         originId = args[i + 1];
                         destinationFilename = args[i + 2];
                         CurrentAction = Actions.download;
+                        return true;
+                    }
+                    else if (args[i] == "-df" && i + 2 < args.Length)
+                    {
+                        originId = args[i + 1];
+                        destinationFilename = args[i + 2];
+                        CurrentAction = Actions.download_folder;
                         return true;
                     }
 

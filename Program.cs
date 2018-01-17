@@ -13,7 +13,7 @@ namespace GDriveTool
 
         static void Main(string[] args)
         {
-
+            
             if (!Parameters.Process(args))
             {
                 Parameters.Description();
@@ -79,6 +79,9 @@ namespace GDriveTool
                             break;
                         case Parameters.Actions.download:
                             GoogleDrive.Download(service, Parameters.originId, Parameters.destinationFilename);
+                            break;
+                        case Parameters.Actions.download_folder:
+                            GoogleDrive.DownloadFolder(service, Parameters.originId, Parameters.destinationFilename);
                             break;
                         default:
                             Parameters.Description();

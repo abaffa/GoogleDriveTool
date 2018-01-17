@@ -4,12 +4,22 @@ using System.Linq;
 using System.Text;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
+using Google.Apis.Auth.OAuth2;
 
 namespace GDriveTool
 {
     public class GoogleDrive
     {
-        public static Google.Apis.Auth.OAuth2.UserCredential Authenticate()
+        private static bool IsLinux
+        {
+            get
+            {
+                int p = (int)Environment.OSVersion.Platform;
+                return (p == 4) || (p == 6) || (p == 128);
+            }
+        }
+
+        public static UserCredential Authenticate()
         {
             var currentFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var credentialsFolder = System.IO.Path.Combine(currentFolder, "credential");
@@ -17,22 +27,22 @@ namespace GDriveTool
             return Authenticate(credentialsFolder);
         }
 
-        public static Google.Apis.Auth.OAuth2.UserCredential Authenticate(string credentialsFolder)
+        public static UserCredential Authenticate(string credentialsFolder)
         {
-            Google.Apis.Auth.OAuth2.UserCredential credentials;
+            UserCredential credentials;
 
             using (var stream = new System.IO.FileStream("client_id.json", System.IO.FileMode.Open, System.IO.FileAccess.Read))
             {
                 // Delete credentials cache at folder debug/bin/credentials after changes here
-                credentials = Google.Apis.Auth.OAuth2.GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    Google.Apis.Auth.OAuth2.GoogleClientSecrets.Load(stream).Secrets,
-                    new[] { Google.Apis.Drive.v3.DriveService.Scope.Drive,
-                    Google.Apis.Drive.v3.DriveService.Scope.DriveAppdata,
-                    Google.Apis.Drive.v3.DriveService.Scope.DriveFile,
-                    Google.Apis.Drive.v3.DriveService.Scope.DriveMetadata,
-                    Google.Apis.Drive.v3.DriveService.Scope.DriveScripts,
-                    //Google.Apis.Drive.v3.DriveService.Scope.DriveReadonly,
-                    Google.Apis.Drive.v3.DriveService.Scope.DrivePhotosReadonly,
+                credentials = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    GoogleClientSecrets.Load(stream).Secrets,
+                    new[] { DriveService.Scope.Drive,
+                    DriveService.Scope.DriveAppdata,
+                    DriveService.Scope.DriveFile,
+                    DriveService.Scope.DriveMetadata,
+                    DriveService.Scope.DriveScripts,
+                    //DriveService.Scope.DriveReadonly,
+                    DriveService.Scope.DrivePhotosReadonly,
                     },
                     "user",
                     System.Threading.CancellationToken.None,
@@ -44,9 +54,9 @@ namespace GDriveTool
 
 
         
-        public static Google.Apis.Drive.v3.DriveService OpenService(Google.Apis.Auth.OAuth2.UserCredential credentials)
+        public static DriveService OpenService(UserCredential credentials)
         {
-            return new Google.Apis.Drive.v3.DriveService(new Google.Apis.Services.BaseClientService.Initializer()
+            return new DriveService(new Google.Apis.Services.BaseClientService.Initializer()
             {
                 HttpClientInitializer = credentials
             });
@@ -56,7 +66,7 @@ namespace GDriveTool
         // -cf  <new foldername> <optional destinationFolderId> Create a Folder
         public static File CreateFolder(DriveService service, string newFolderName, String parentFolderId = "")
         {
-            var diretorio = new Google.Apis.Drive.v3.Data.File()
+            var diretorio = new File()
             {
                 Name = newFolderName,
                 Parents = parentFolderId != "" ? new List<string> { parentFolderId } : null,
@@ -79,7 +89,7 @@ namespace GDriveTool
         // -cp <originId> <new filename> <optional destinationFolderId> Copy a file
         public static File CopyFile(DriveService service, String originFileId, String newFileName, String parentFolderId = "")
         {
-            File newFile = new Google.Apis.Drive.v3.Data.File()
+            File newFile = new File()
             {
                 Name = newFileName,
                 Parents = parentFolderId != "" ? new List<string> { parentFolderId } : null
@@ -143,7 +153,7 @@ namespace GDriveTool
         }
 
         // -l <parentFolderId> List items of a location
-        public static List<File> ListAll(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
+        public static List<File> ListAll(DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> filesList = new List<File>();
 
@@ -183,7 +193,7 @@ namespace GDriveTool
         }
 
         // -lf <parentFolderId> List files of a location
-        public static List<File> ListFiles(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
+        public static List<File> ListFiles(DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> filesList = new List<File>();
 
@@ -224,7 +234,7 @@ namespace GDriveTool
         }
 
         // -ld <parentFolderId> List folders of a location
-        public static List<File> ListFolders(Google.Apis.Drive.v3.DriveService service, string parentFolderId, int filesPerPage = 100)
+        public static List<File> ListFolders(DriveService service, string parentFolderId, int filesPerPage = 100)
         {
             List<File> folderList = new List<File>();
 
@@ -266,7 +276,7 @@ namespace GDriveTool
 
 
         // -s <name> <optional includeTrash True/Fase> Search a File
-        public static string[] SearchForFileId(Google.Apis.Drive.v3.DriveService service, string name, bool includeTrash = false)
+        public static string[] SearchForFileId(DriveService service, string name, bool includeTrash = false)
         {
             var ret = new List<string>();
 
@@ -292,7 +302,7 @@ namespace GDriveTool
         }
 
         // -del <fileId> Delete a file/Folder
-        public static void Delete(Google.Apis.Drive.v3.DriveService service, string fileId)
+        public static void Delete(DriveService service, string fileId)
         {
 
             try
@@ -308,9 +318,9 @@ namespace GDriveTool
 
 
         // -u <filePath> <optional parentFolderId> Upload a File
-        public static File Upload(Google.Apis.Drive.v3.DriveService service, string filepath, String parentFolderId = "")
+        public static File Upload(DriveService service, string filepath, String parentFolderId = "")
         {
-            var newFile = new Google.Apis.Drive.v3.Data.File()
+            var newFile = new File()
             {
                 Name = System.IO.Path.GetFileName(filepath),
                 Parents = parentFolderId != "" ? new List<string> { parentFolderId } : null,
@@ -336,9 +346,9 @@ namespace GDriveTool
         }
 
         // -ru <filePath> <fileId> Resume Upload
-        public static File ResumeUpload(Google.Apis.Drive.v3.DriveService service, string filepath, string fileId)
+        public static File ResumeUpload(DriveService service, string filepath, string fileId)
         {
-            var newFile = new Google.Apis.Drive.v3.Data.File();
+            var newFile = new File();
             newFile.Name = System.IO.Path.GetFileName(filepath);
             newFile.MimeType = MimeTypes.MimeTypeMap.GetMimeType(System.IO.Path.GetExtension(filepath));
             try
@@ -361,7 +371,7 @@ namespace GDriveTool
 
 
         // -d <fileId> <destinationFilename> Download File
-        public static void Download(Google.Apis.Drive.v3.DriveService service, string fileId, string localDestinationFilename)
+        public static void Download(DriveService service, string fileId, string localDestinationFilename)
         {
 
             try
@@ -375,6 +385,53 @@ namespace GDriveTool
             catch (Exception e)
             {
                 Console.WriteLine("An error occurred: " + e.Message);
+            }
+
+        }
+
+        public static void DownloadFolder(DriveService service, string originId, string folder)
+        {
+            var requestDirOrigin = service.Files.Get(originId);
+            File fileDirOrigin = requestDirOrigin.Execute();
+
+
+            List<String> fileEntries = new System.Collections.Generic.List<String>(System.IO.Directory.GetFiles(folder));
+
+            // Recurse into subdirectories of this directory.
+            List<String> subdirectoryEntries = new System.Collections.Generic.List<String>(System.IO.Directory.GetDirectories(folder));
+
+            List<File> lFolders = ListFolders(service, originId);
+            foreach (File f in lFolders)
+            {
+                if (!subdirectoryEntries.Contains(f.Name))
+                {
+                    Console.WriteLine("# Creating Folder " + f.Name);
+                    String newFolder = folder + (IsLinux ? "/" : "\\") + f.Name;
+                    System.IO.Directory.CreateDirectory(newFolder);
+                    DownloadFolder(service, f.Id, newFolder);
+                }
+                else
+                {
+                    Console.WriteLine("# Folder exists " + f.Name);
+                    String newFolder = folder + (IsLinux ? "/" : "\\") + f.Name;
+                    DownloadFolder(service, f.Id, newFolder);
+                }
+            }
+
+            List<File> lFiles = ListFiles(service, originId);
+            foreach (File f in lFiles)
+            {
+                if (!fileEntries.Contains(f.Name))
+                {
+                    Console.WriteLine("* Create new file " + f.Name);
+
+                    String newFilename = folder + (IsLinux ? "/" : "\\") + f.Name;
+                    Download(service, f.Id, newFilename);
+                }
+                else
+                {
+                    Console.WriteLine("# File exists " + f.Name);
+                }
             }
 
         }
